@@ -3,6 +3,7 @@ import { json } from "@remix-run/node";
 import sharp from "sharp";
 // import { verifyAppProxySignature } from "../lib/proxy-verify.server"; // Re-enable for production
 import { generateLineArtPNG } from "../lib/openai.server";
+import { convertToLineArt, convertToLineArtV2 } from "../lib/lineart.server";
 import { watermarkDiagonal } from "../lib/watermark.server";
 
 const CORS = {
@@ -54,18 +55,25 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   try {
-    // Fast local fallback (grayscale + threshold) for sub-7s responses
-    const fast = await sharp(normalized)
-      .resize({ width: 768, height: 768, fit: "inside", withoutEnlargement: true })
-      .greyscale()
-      .threshold(170)
-      .toBuffer();
-
-    // Race OpenAI vs ~6.5s deadline (avoid App Proxy timeout)
+    // Try AI generation first, then fallback to proper line art conversion
     const deadlineMs = 6500;
     const clean = await Promise.race<Buffer>([
       generateLineArtPNG(normalized), // preferred (AI)
-      new Promise<Buffer>((resolve) => setTimeout(() => resolve(fast), deadlineMs)), // fallback
+      new Promise<Buffer>(async (resolve) => {
+        try {
+          // Use proper line art conversion as fallback
+          const lineArt = await convertToLineArt(normalized);
+          resolve(lineArt);
+        } catch (error) {
+          // If line art conversion fails, use simple grayscale as last resort
+          const simple = await sharp(normalized)
+            .resize({ width: 768, height: 768, fit: "inside", withoutEnlargement: true })
+            .greyscale()
+            .threshold(170)
+            .toBuffer();
+          resolve(simple);
+        }
+      }),
     ]);
 
     const wm = await watermarkDiagonal(clean);
