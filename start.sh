@@ -9,4 +9,4 @@ echo "Starting app on port $PORT"
 npm run setup
 
 # Start the app
-exec remix-serve ./build/server/index.js --port $PORT
+exec npx remix-serve ./build/server/index.js --port $PORT
