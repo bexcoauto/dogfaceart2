@@ -3,6 +3,8 @@ import { json } from "@remix-run/node";
 import sharp from "sharp";
 // import { verifyAppProxySignature } from "../lib/proxy-verify.server"; // Re-enable for production
 import { generateLineArtPNG } from "../lib/openai.server";
+import { generateLineArtWithReplicate, generateSimpleLineArt } from "../lib/replicate.server";
+import { generateLineArtWithStability } from "../lib/stability.server";
 import { convertToLineArt, convertToLineArtV2 } from "../lib/lineart.server";
 import { watermarkDiagonal } from "../lib/watermark.server";
 
@@ -55,17 +57,36 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   try {
-    // Try AI generation first, then fallback to proper line art conversion
-    const deadlineMs = 6500;
+    // Try multiple AI services for better line art
+    const deadlineMs = 10000; // Increased timeout for better APIs
+    
     const clean = await Promise.race<Buffer>([
-      generateLineArtPNG(normalized), // preferred (AI)
+      // Try Stability AI first (best for line art)
+      generateLineArtWithStability(normalized).catch(e => {
+        console.log("Stability AI failed:", e.message);
+        throw e;
+      }),
+      
+      // Try Replicate.ai as second option
+      generateSimpleLineArt(normalized).catch(e => {
+        console.log("Replicate failed:", e.message);
+        throw e;
+      }),
+      
+      // Try OpenAI as third option
+      generateLineArtPNG(normalized).catch(e => {
+        console.log("OpenAI failed:", e.message);
+        throw e;
+      }),
+      
+      // Fallback to local processing
       new Promise<Buffer>(async (resolve) => {
         try {
-          // Use proper line art conversion as fallback
-          const lineArt = await convertToLineArt(normalized);
+          // Use improved line art conversion as fallback
+          const lineArt = await convertToLineArtV2(normalized);
           resolve(lineArt);
         } catch (error) {
-          // If line art conversion fails, use simple grayscale as last resort
+          // If all else fails, use simple grayscale
           const simple = await sharp(normalized)
             .resize({ width: 768, height: 768, fit: "inside", withoutEnlargement: true })
             .greyscale()
