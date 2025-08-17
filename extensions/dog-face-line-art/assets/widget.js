@@ -38,6 +38,23 @@ async function compressImageIfNeeded(file) {
 
 // Try storefront App Proxy first (same-origin), then fall back to direct tunnel (CORS)
 async function postWithFallback(proxyPath, tunnelPath, fd) {
+  // Skip App Proxy if proxyPath is null
+  if (!proxyPath) {
+    // Direct CORS request only
+    try {
+      const url = `${DDL_BASE}${tunnelPath}?t=${Date.now()}`;
+      const resp = await fetch(url, { method: "POST", body: fd, mode: "cors" });
+      const text = await resp.text();
+      console.log("[DDL] POST-direct", url, resp.status, text.slice(0, 200));
+      const data = JSON.parse(text);
+      if (!resp.ok) throw new Error(data?.error || text.slice(0, 120));
+      return data;
+    } catch (e) {
+      console.warn("Direct request failed:", e);
+      throw new Error("Request failed.");
+    }
+  }
+  
   // 1) Same-origin App Proxy (no CORS)
   try {
     const url = `${proxyPath}?t=${Date.now()}`;
@@ -115,7 +132,7 @@ async function postWithFallback(proxyPath, tunnelPath, fd) {
       try {
         const sendFile = await compressImageIfNeeded(fileBlob);
         const fd = new FormData(); fd.append("image", sendFile);
-        const data = await postWithFallback("/apps/dogfaceart/preview", "/apps/dogart/preview", fd);
+        const data = await postWithFallback(null, "/apps/dogart/preview", fd);
         finalB64 = data.previewB64;
         if (img) img.src = `data:image/png;base64,${finalB64}`;
         show(preview, true);
@@ -136,7 +153,7 @@ async function postWithFallback(proxyPath, tunnelPath, fd) {
       setStatus("Saving approved art…");
       try {
         const fd = new FormData(); fd.append("finalB64", finalB64);
-        const data = await postWithFallback("/apps/dogfaceart/finalize", "/apps/dogart/finalize", fd);
+        const data = await postWithFallback(null, "/apps/dogart/finalize", fd);
         if (!data.artUrl) throw new Error(data.error || "Could not save art. Try again.");
 
         setStatus("Approved. Adding to cart…");
