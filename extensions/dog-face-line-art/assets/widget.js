@@ -1,5 +1,5 @@
 // Dog Face Line Art — Theme App Extension Widget (client-side)
-console.log("Dog Line Art widget v9 (direct CORS only)");
+console.log("Dog Line Art widget v10 (FORCE UPDATE - direct CORS only) - " + Date.now());
 
 // Current production URL - fallback if the store proxy isn't available
 const DDL_BASE = "https://dogfaceart2.onrender.com";
