@@ -115,7 +115,7 @@ async function postWithFallback(proxyPath, tunnelPath, fd) {
       try {
         const sendFile = await compressImageIfNeeded(fileBlob);
         const fd = new FormData(); fd.append("image", sendFile);
-        const data = await postWithFallback("/apps/dogart/preview", "/apps/dogart/preview", fd);
+        const data = await postWithFallback("/apps/dogfaceart/preview", "/apps/dogart/preview", fd);
         finalB64 = data.previewB64;
         if (img) img.src = `data:image/png;base64,${finalB64}`;
         show(preview, true);
@@ -136,7 +136,7 @@ async function postWithFallback(proxyPath, tunnelPath, fd) {
       setStatus("Saving approved art…");
       try {
         const fd = new FormData(); fd.append("finalB64", finalB64);
-        const data = await postWithFallback("/apps/dogart/finalize", "/apps/dogart/finalize", fd);
+        const data = await postWithFallback("/apps/dogfaceart/finalize", "/apps/dogart/finalize", fd);
         if (!data.artUrl) throw new Error(data.error || "Could not save art. Try again.");
 
         setStatus("Approved. Adding to cart…");
