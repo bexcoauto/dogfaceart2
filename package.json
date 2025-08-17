@@ -2,7 +2,7 @@
   "name": "dogfaceart2",
   "private": true,
   "scripts": {
-    "build": "remix vite:build",
+    "build": "node check-node.js && remix vite:build",
     "dev": "shopify app dev",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
@@ -22,7 +22,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=20.10.0"
+    "node": "20.10.0"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",

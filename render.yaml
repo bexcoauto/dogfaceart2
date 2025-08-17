@@ -2,21 +2,22 @@ services:
   - type: web
     name: dogfaceart2
     env: node
-    plan: free
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
+    buildCommand: npm install
+    startCommand: npm run build && npm run start:prod
     envVars:
       - key: NODE_ENV
         value: production
-      - key: SHOPIFY_API_KEY
-        value: a7d4f796be9ef2798c341edb696f2284
-      - key: SHOPIFY_API_SECRET
-        value: b9028d4878e2b8d3dc4acf289f56bec7
-      - key: SCOPES
-        value: read_files,read_orders,read_products,write_files,write_orders,write_products
-      - key: SHOPIFY_DOG_FACE_LINE_ART_ID
-        value: 41ebe2f1-1b0c-4601-8035-39588826f506
       - key: OPENAI_API_KEY
+        sync: false
+      - key: SHOPIFY_API_KEY
+        sync: false
+      - key: SHOPIFY_API_SECRET
+        sync: false
+      - key: SCOPES
+        sync: false
+      - key: SHOPIFY_DOG_FACE_LINE_ART_ID
+        sync: false
+      - key: SHOPIFY_APP_URL
         sync: false
       - key: DATABASE_URL
         fromDatabase:
@@ -26,4 +27,4 @@ services:
 databases:
   - name: dogfaceart2-db
     databaseName: dogfaceart2
-    user: dogfaceart2
+    user: dogfaceart2_user
