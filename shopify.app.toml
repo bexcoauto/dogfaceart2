@@ -1,0 +1,34 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "a7d4f796be9ef2798c341edb696f2284"
+name = "dogfaceart2"
+handle = "dogfaceart2"
+application_url = "https://jonathan-puzzles-remedy-hong.trycloudflare.com"
+embedded = true
+
+[build]
+include_config_on_deploy = true
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2025-07"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_products,write_products,read_orders,write_orders,read_files,write_files"
+
+[auth]
+redirect_urls = ["https://jonathan-puzzles-remedy-hong.trycloudflare.com/auth/callback", "https://jonathan-puzzles-remedy-hong.trycloudflare.com/auth/shopify/callback", "https://jonathan-puzzles-remedy-hong.trycloudflare.com/api/auth/callback"]
+
+[pos]
+embedded = false
+
+

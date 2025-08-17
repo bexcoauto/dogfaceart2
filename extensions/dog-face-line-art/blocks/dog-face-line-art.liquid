@@ -1,0 +1,33 @@
+{% schema %}
+{
+  "name": "Dog Face Line Art",
+  "target": "section",
+  "javascript": "widget.js",
+  "stylesheet": "widget.css",
+  "settings": [
+    { "type": "checkbox", "id": "required", "label": "Require approval before add-to-cart", "default": true },
+    { "type": "text", "id": "label", "label": "Block title", "default": "See your dog as line art — upload a photo" }
+  ]
+}
+{% endschema %}
+
+<div class="ddl-art-block" data-required="{{ block.settings.required }}">
+  <h3 class="ddl-title">{{ block.settings.label }}</h3>
+  <div class="ddl-drop">Drop a photo here or click to upload (JPG/PNG/HEIC, max 15MB)</div>
+  <input type="file" accept="image/*" class="ddl-file" hidden>
+
+  <div class="ddl-actions" hidden>
+    <button class="ddl-generate">Generate preview</button>
+    <button class="ddl-regenerate" disabled>Regenerate (3 max)</button>
+  </div>
+
+  <div class="ddl-preview" hidden>
+    <img class="ddl-img" alt="Preview"/>
+    <div class="ddl-approve-row">
+      <button class="ddl-approve">Approve artwork</button>
+    </div>
+    <small class="ddl-hint">Preview is watermarked. Final file is clean.</small>
+  </div>
+
+  <div class="ddl-status" aria-live="polite"></div>
+</div>
