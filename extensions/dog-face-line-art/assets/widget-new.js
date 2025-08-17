@@ -41,18 +41,25 @@ async function makeRequest(endpoint, formData) {
   try {
     const url = `${DDL_BASE}${endpoint}?t=${Date.now()}`;
     console.log("Making request to:", url);
+    console.log("FormData size:", formData.get("image")?.size || "unknown");
+    
     const resp = await fetch(url, { 
       method: "POST", 
       body: formData, 
-      mode: "cors" 
+      mode: "cors",
+      timeout: 30000 // 30 second timeout
     });
+    
+    console.log("Response status:", resp.status);
     const text = await resp.text();
-    console.log("Response:", resp.status, text.slice(0, 200));
+    console.log("Response text:", text.slice(0, 200));
+    
     const data = JSON.parse(text);
     if (!resp.ok) throw new Error(data?.error || text.slice(0, 120));
     return data;
   } catch (e) {
     console.error("Request failed:", e);
+    console.error("Error details:", e.message, e.stack);
     throw new Error("Request failed: " + e.message);
   }
 }
