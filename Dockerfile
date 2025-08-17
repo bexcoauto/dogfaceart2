@@ -1,11 +1,12 @@
 FROM node:20.10.0-alpine
 RUN apk add --no-cache openssl
 
-EXPOSE 3000
+EXPOSE $PORT
 
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV PORT=3000
 
 COPY package.json package-lock.json* ./
 
@@ -18,4 +19,4 @@ COPY . .
 
 RUN npm run build
 
-CMD ["npm", "run", "docker-start"]
+CMD ["npm", "run", "start:prod"]
