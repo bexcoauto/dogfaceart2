@@ -1,12 +1,12 @@
 FROM node:20.10.0-alpine
 RUN apk add --no-cache openssl
 
-EXPOSE $PORT
-
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3000
+
+EXPOSE 3000
 
 COPY package.json package-lock.json* ./
 
@@ -18,5 +18,6 @@ RUN npm remove @shopify/cli
 COPY . .
 
 RUN npm run build
+RUN chmod +x start.sh
 
-CMD ["npm", "run", "start:prod"]
+CMD ["./start.sh"]
